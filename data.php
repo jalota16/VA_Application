@@ -7,9 +7,13 @@ include_once("pdo_mysql.php");
 	
     $server = pdo_connect($host, $username, $password);
     $connection = pdo_select_db($database, $server);
+    $datasets = ["fri", "sat", "sun"];
+    $datasetsLabels= ["Friday", "Saturday", "Sunday"];
     $whichDay = htmlspecialchars($_GET["day"]);
+    $whichDay = array_search($whichDay,array_values($datasetsLabels));
+    $inputDay = $datasets[$whichDay];
     $myquery = "select name,count(*) as value,CONCAT(HOUR(m.timestamp),'00') as timing from movement m, places p 
-    where m.x = p.x and p.y = m.y and day = '".$whichDay."' group by name, HOUR(m.timestamp);";
+    where m.x = p.x and p.y = m.y and day = '".$inputDay."' group by name, HOUR(m.timestamp);";
 
     $query = pdo_query($myquery);
     $yLabels= ['Wrightiraptor Mountain','Galactousaurus Rage','Auvilotops Express','TerroSaur','Wendisaurus Chase',
