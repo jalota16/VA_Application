@@ -24,7 +24,7 @@ include_once("pdo_mysql.php");
     $yposition =  $firstresult["y"];
     $selectedCategory =  $firstresult["category"];
 
-    if(strcasecmp($position,"after")){
+    if(!strcasecmp($position,"after")){
         $myquery = "Select place.name, count(*) as number, place.category, place.x, place.y from movement move, (select id,min(timestamp) as timestamp from movement where id in 
         (select distinct(m.id) from movement m where x =".$xposition." and y =".$yposition." and day = '".$inputDay."' 
         and HOUR(m.timestamp) = ".$whatTime.") and day = '".$inputDay."' and HOUR(timestamp) = ".($whatTime+1)." group by id) as temp, places place where 
