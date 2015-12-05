@@ -10,8 +10,7 @@ rect.bordered {
 
 text.mono {
   font-size: 9pt;
-  font-family: Consolas, courier;
-  fill: #aaa;
+  fill: #5c5c3d;
 }
 
 text.axis-workweek {
@@ -69,9 +68,26 @@ rect.cell-hover {
 }
 
 .label-text {
-  font-size: 12px
+  font-size: 12px;
 }
 
+.table-text {
+  margin-left: 15px;
+  font-size:11px;
+}
+
+.title-text {
+  margin-left: 15px;
+  font-size:16px;
+}
+
+.y.axisRight text {
+    fill: orange;
+}
+
+.y.axisLeft text {
+    fill: steelblue;
+}
 
 .axis path,
 .axis line {
@@ -80,12 +96,38 @@ rect.cell-hover {
   shape-rendering: crispEdges;
 }
 
+.bar1 {
+  fill: steelblue;
+}
+
+.line2 {
+  stroke: orange;
+  fill: none;
+  stroke-width: 2px;
+}
+
 .x.axis path {
   display: none;
 }
 
-.line {
-  fill: none;
-  stroke: steelblue;
-  stroke-width: 1.5px;
+.modal-dialog {
+  width: 80%;
+  height: 95%;
+  padding: 0;
+}
+
+.modal-content {
+  height: 95%;
+  border-radius: 0;
+}
+
+.modal-body {
+  height: 76%;
+  border-radius: 0;
+}
+
+.chord path {
+  fill-opacity: .67;
+  stroke: #000;
+  stroke-width: .5px;
 }
