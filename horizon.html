@@ -49,13 +49,24 @@
         </div><!-- /.navbar-collapse -->
       </div><!-- /.container-fluid -->
     </nav>
+	<div class = "container">
+	<div class = "col-md-4">
+  		<div id="dataset-picker" class="well well-sm">
+  			<h2>Select a day:</h2>
+  		</div>
+  	</div>
+	</div>
     <script>
 
 var margin = {top: 20, right: 80, bottom: 30, left: 50},
     width = 960 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
-var parseDate = d3.time.format("%Y%m%d").parse;
+	times = ["8am", "9am", "10am", "11am", "12am", "1pm", "2pm", "3pm", "4pm", "5pm", "6pm", "7pm", "8pm", "9pm", "10pm", "11pm"];
+    timingArray = ['800','900','1000','1100','1200','1300','1400','1500','1600','1700','1800','1900','2000','2100',
+        '2200','2300'];
+    datasets= ["Friday", "Saturday", "Sunday"];
+//var parseDate = d3.time.format("%Y%m%d").parse;
 
 var x = d3.time.scale()
     .range([0, width]);
@@ -76,71 +87,102 @@ var yAxis = d3.svg.axis()
 var line = d3.svg.line()
     .interpolate("basis")
     .x(function(d) { return x(d.date); })
-    .y(function(d) { return y(d.temperature); });
+    .y(function(d) { return y(d.amount); });
 
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	
+var lineChart = function(day) {
 
-d3.tsv("data.tsv", function(error, data) {
-  if (error) throw error;
+		var url = "data.php?day=" + day;
+		console.log("here: "+url);
+		  d3.json(url,function(error, data) {
+		  
+		  if (error) throw error;
 
-  color.domain(d3.keys(data[0]).filter(function(key) { return key !== "date"; }));
+		  color.domain(d3.keys(data[0]).filter(function(key) { return key !== "timing"; }));
 
-  data.forEach(function(d) {
-    d.date = parseDate(d.date);
+		  var rides = color.domain().map(function(name) {
+			return {
+			  name: name,
+			  values: data.map(function(d) {
+				return {date: d.timing, value: +d[name]};
+			  })
+			};
+		  });
+
+		  x.domain(d3.extent(data, function(d) { return d.date; }));
+
+		  y.domain([
+			d3.min(rides, function(c) { return d3.min(c.values, function(v) { return v.value; }); }),
+			d3.max(rides, function(c) { return d3.max(c.values, function(v) { return v.value; }); })
+		  ]);
+
+		  svg.append("g")
+			  .attr("class", "x axis")
+			  .attr("transform", "translate(0," + height + ")")
+			  .call(xAxis);
+
+		  svg.append("g")
+			  .attr("class", "y axis")
+			  .call(yAxis)
+			.append("text")
+			  .attr("transform", "rotate(-90)")
+			  .attr("y", 6)
+			  .attr("dy", ".71em")
+			  .style("text-anchor", "end")
+			  .text("Number of people");
+
+		  var ride = svg.selectAll(".ride")
+			  .data(name)
+			.enter().append("g")
+			  .attr("class", "ride");
+
+		  ride.append("path")
+			  .attr("class", "line")
+			  .attr("d", function(d) { return line(d.values); })
+			  .style("stroke", function(d) { return color(d.name); });
+
+		  ride.append("text")
+			  .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
+			  .attr("transform", function(d) { return "translate(" + x(d.value.timing) + "," + y(d.value.value) + ")"; })
+			  .attr("x", 3)
+			  .attr("dy", ".35em")
+			  .text(function(d) { return d.name; });
+		});
+		
+		svg.transition().duration(1000)
+        //.style("fill", function(d) { return colorScale(d.value); });
+
+    svg.select("title").text(function(d) { return d.value; });
+    
+    svg.exit().remove();
+}
+
+lineChart(datasets[0]);
+
+var datasetpicker = d3.select("#dataset-picker").selectAll(".dataset-button")
+  .data(datasets);
+var defaultChecked = 0;
+
+datasetpicker.enter()
+  .append("label")
+  .text(function(d) {return d;})
+  .insert("input")
+  .attr({
+      type: "radio",
+      class: "radiobutton",
+      name: "mode",
+      value: function(d, i) {return i;}
+  })
+  .property("checked", function(d, i) {return i===defaultChecked;})
+  .on("click", function(d,i) {
+    defaultChecked = i;
+    lineChart(d);
   });
-
-  var cities = color.domain().map(function(name) {
-    return {
-      name: name,
-      values: data.map(function(d) {
-        return {date: d.date, temperature: +d[name]};
-      })
-    };
-  });
-
-  x.domain(d3.extent(data, function(d) { return d.date; }));
-
-  y.domain([
-    d3.min(cities, function(c) { return d3.min(c.values, function(v) { return v.temperature; }); }),
-    d3.max(cities, function(c) { return d3.max(c.values, function(v) { return v.temperature; }); })
-  ]);
-
-  svg.append("g")
-      .attr("class", "x axis")
-      .attr("transform", "translate(0," + height + ")")
-      .call(xAxis);
-
-  svg.append("g")
-      .attr("class", "y axis")
-      .call(yAxis)
-    .append("text")
-      .attr("transform", "rotate(-90)")
-      .attr("y", 6)
-      .attr("dy", ".71em")
-      .style("text-anchor", "end")
-      .text("Temperature (ºF)");
-
-  var city = svg.selectAll(".city")
-      .data(cities)
-    .enter().append("g")
-      .attr("class", "city");
-
-  city.append("path")
-      .attr("class", "line")
-      .attr("d", function(d) { return line(d.values); })
-      .style("stroke", function(d) { return color(d.name); });
-
-  city.append("text")
-      .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
-      .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.temperature) + ")"; })
-      .attr("x", 3)
-      .attr("dy", ".35em")
-      .text(function(d) { return d.name; });
-});
 
 </script>
 	
