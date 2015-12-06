@@ -1,9 +1,11 @@
 var datasets= ["Friday", "Saturday", "Sunday"];
-heatmapChart(datasets[0]);
-
-var datasetpicker = d3.select("#dataset-picker").selectAll(".dataset-button")
-  .data(datasets);
+var datasets1= ["Alphabetical", "Ride Category"];
 var defaultChecked = 0;
+var defaultChecked1 = 0;
+
+heatmapChart(datasets[defaultChecked],datasets1[defaultChecked1]);
+
+var datasetpicker = d3.select("#dataset-picker").selectAll(".dataset-button").data(datasets);
 
 datasetpicker.enter()
   .append("label")
@@ -18,31 +20,59 @@ datasetpicker.enter()
   .property("checked", function(d, i) {return i===defaultChecked;})
   .on("click", function(d,i) {
     defaultChecked = i;
-    heatmapChart(d);
+    heatmapChart(d,datasets1[defaultChecked1]);
   });
 
-function heatmapChart(day) {
+var datasetpicker1 = d3.select("#dataset-picker1").selectAll(".dataset-button").data(datasets1);
+
+datasetpicker1.enter()
+  .append("label")
+  .text(function(d) {return d;})
+  .insert("input")
+  .attr({
+      type: "radio",
+      class: "radiobutton",
+      name: "mode1",
+      value: function(d, i) {return i;}
+  })
+  .property("checked", function(d, i) {return i===defaultChecked1;})
+  .on("click", function(d,i) {
+    defaultChecked1 = i;
+    heatmapChart(datasets[defaultChecked],d);
+  });
+
+function heatmapChart(day,sortOrder) {
   $('#chart').text("");
-  var margin = { top: 35, right: 0, bottom: 100, left: 180 },
+  var margin = { top: 25, right: 0, bottom: 100, left: 150 },
   height = 750 - margin.left - margin.right,
-  width = 1055 - margin.top - margin.bottom,
+  width = 1060 - margin.top - margin.bottom - 5,
   gridSize = Math.floor(width / 55),
   legendElementWidth = gridSize*3,
   buckets = 9,
-  colors = ['#fff7ec','#fee8c8','#fdd49e','#fdbb84','#fc8d59','#ef6548','#d7301f','#990000'], // alternatively colorbrewer.YlGnBu[9]
-  days = ['Wrightiraptor Mountain','Galactousaurus Rage','Auvilotops Express','TerroSaur','Wendisaurus Chase',
-    'Keimosaurus Big Spin','Firefall','Atmosfear','Jeradctyl Jump','Sauroma Bumpers','Flying TyrAndrienkos',
-    'Cyndisaurus Asteroid','Beelzebufo','Enchanted Toadstools','Stegocycles','Blue Iguanodon','Wild Jungle Cruise','Stone Cups',
-    'Scholz Express','Paleocarrie Carousel','Jurassic Road','Rhynasaurus Rampage','Kauf\'s Lost Canyon Escape','Maiasaur Madness',
-    'Kristandon Kaper','Squidosaur','Eberlasaurus Roundup','Dykesadactyl Thrill','Ichyoroberts Rapids','Raptor Race',
-    'Creighton Pavilion',
-    'Grinosaurus Stage','SabreTooth Theatre','Flight of the Swingodon',"Daily Slab Maps and Info"],
+  //colors = ['#fff7ec','#fee8c8','#fdd49e','#fdbb84','#fc8d59','#ef6548','#d7301f','#990000'], // alternatively colorbrewer.YlGnBu[9]
+  //colors = ['#f7fbff', '#deebf7', '#c6dbef',"#9ecae1","#6baed6","#4292c6","#2171b5","#084594"],
+  colors = ["#fff5eb","#fee6ce","#fdd0a2","#fdae6b","#fd8d3c","#f16913","#d94801","#8c2d04"],
+  days = ["Atmosfear","Auvilotops Express","Beelzebufo","Blue Iguanodon","Creighton Pavilion","Cyndisaurus Asteroid",
+  "Daily Slab Maps and Info","Dykesadactyl Thrill","Eberlasaurus Roundup","Enchanted Toadstools","Firefall","Flight of the Swingodon",
+  "Flying TyrAndrienkos","Galactousaurus Rage","Grinosaurus Stage","Ichyoroberts Rapids","Jeradctyl Jump","Jurassic Road",
+  "Kauf's Lost Canyon Escape","Keimosaurus Big Spin","Kristandon Kaper","Maiasaur Madness","Paleocarrie Carousel","Raptor Race",
+  "Rhynasaurus Rampage","SabreTooth Theatre","Sauroma Bumpers","Scholz Express","Squidosaur","Stegocycles","Stone Cups","TerroSaur",
+  "Wendisaurus Chase","Wild Jungle Cruise","Wrightiraptor Mountain"],
   times = ["8am", "9am", "10am", "11am", "12am", "1pm", "2pm", "3pm", "4pm", "5pm", "6pm", "7pm", "8pm", "9pm", "10pm", "11pm"];
   timingArray = [8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23];
 
+  if(sortOrder == "Ride Category"){
+    days = ["Daily Slab Maps and Info","Stone Cups","Wild Jungle Cruise","Blue Iguanodon","Stegocycles","Enchanted Toadstools",
+    "Beelzebufo","Cyndisaurus Asteroid","Flying TyrAndrienkos","Sauroma Bumpers","Jeradctyl Jump","Kristandon Kaper","Maiasaur Madness",
+    "Kauf's Lost Canyon Escape","Rhynasaurus Rampage","Jurassic Road","Paleocarrie Carousel","Scholz Express","Eberlasaurus Roundup",
+    "Raptor Race","Ichyoroberts Rapids","Dykesadactyl Thrill","Squidosaur","SabreTooth Theatre","Grinosaurus Stage","Creighton Pavilion",
+    "Wrightiraptor Mountain","Atmosfear","Firefall","Keimosaurus Big Spin","Wendisaurus Chase","TerroSaur","Auvilotops Express",
+    "Galactousaurus Rage","Flight of the Swingodon"];
+  }
+
   var svg = d3.select("#chart").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
+    .attr("width", width + margin.left + margin.right + 150)
+    .attr("height", height + margin.top + margin.bottom - 140)
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -52,8 +82,8 @@ function heatmapChart(day) {
     .text(function (d) { return d; })
     .attr("x", 0)
     .attr("y", function (d, i) { return i * gridSize; })
-    .style("text-anchor", "end")
-    .attr("transform", "translate(-6," + gridSize / 1.5 + ")")
+    .style("text-anchor", "start")
+    .attr("transform", "translate(" + -gridSize * 9 + "," + gridSize / 1.5 + ")")
     .attr("class", function (d, i) { return ((i % 2 == 1) ? "dayLabel mono axis axis-workweek" : "dayLabel mono axis"); });
 
   var timeLabels = svg.selectAll(".timeLabel")
@@ -106,7 +136,7 @@ function heatmapChart(day) {
          //Update the tooltip position and value
        d3.select("#tooltip")
          .style("left", (d3.event.pageX+10) + "px")
-         .style("top", (d3.event.pageY-10) + "px")
+         .style("top", (d3.event.pageY-70) + "px")
          .select("#value")
          .html("Place: "+days[d.name]+"<br> Check-in Time: "+times[d.timing]+"<br> No. of Visitors: <b>"+d.value+"</b>");  
        //Show the tooltip
@@ -136,9 +166,9 @@ function heatmapChart(day) {
         .attr("class", "legend");
 
     legend.append("rect")
-      .attr("x", function(d, i) { return legendElementWidth * i; })
-      .attr("y", height)
-      .attr("width", legendElementWidth)
+      .attr("x", function(d, i) { return legendElementWidth/1.25 * i + 775; })
+      .attr("y", height - gridSize*4.5)
+      .attr("width", legendElementWidth/1.25)
       .attr("height", gridSize / 1.5 )
       .style("fill", function(d, i) { return colors[i]; })
       .style("stroke", "#5c5c3d")
@@ -148,8 +178,8 @@ function heatmapChart(day) {
       .attr("class", "mono")
       .style("fill", "#000")
       .text(function(d) { return "≥ " + Math.round(d); })
-      .attr("x", function(d, i) { return legendElementWidth * i; })
-      .attr("y", height + gridSize * 1.5);
+      .attr("x", function(d, i) { return legendElementWidth/1.25 * i + 775; })
+      .attr("y", height - gridSize * 3);
 
     legend.exit().remove();
   }); 
@@ -338,12 +368,12 @@ function chordDiagram() {
 
   svg.append("g").selectAll("path")
       .data(chord.groups)
-    .enter().append("path")
+      .enter().append("path")
       .style("fill", function(d) { return fill(d.index); })
       .style("stroke", function(d) { return fill(d.index); })
       .attr("d", d3.svg.arc().innerRadius(innerRadius).outerRadius(outerRadius))
-      .on("mouseover", fade(.1))
-      .on("mouseout", fade(1));
+      .on("mouseover", fade(.1,svg))
+      .on("mouseout", fade(1,svg));
 
   var ticks = svg.append("g").selectAll("g")
       .data(chord.groups)
@@ -393,7 +423,7 @@ function groupTicks(d) {
 }
 
 // Returns an event handler for fading a given chord group.
-function fade(opacity) {
+function fade(opacity,svg) {
   return function(g, i) {
     svg.selectAll(".chord path")
         .filter(function(d) { return d.source.index != i && d.target.index != i; })

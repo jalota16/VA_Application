@@ -1,7 +1,7 @@
 @CHARSET "ISO-8859-1";
 
 body{
-  font-family: 'Ubuntu', sans-serif;
+  font-family: 'Source Sans Pro', sans-serif;
 }
 rect.bordered {
   stroke: #E6E6E6;
@@ -10,7 +10,7 @@ rect.bordered {
 
 text.mono {
   font-size: 9pt;
-  fill: #5c5c3d;
+  fill: #999391;
 }
 
 text.axis-workweek {
@@ -130,4 +130,9 @@ rect.cell-hover {
   fill-opacity: .67;
   stroke: #000;
   stroke-width: .5px;
+}
+
+.caption {
+  padding-top: 5px;
+  font-size: 11px;
 }

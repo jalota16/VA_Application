@@ -25,17 +25,17 @@ include_once("pdo_mysql.php");
     $selectedCategory =  $firstresult["category"];
 
     if(!strcasecmp($position,"after")){
-        $myquery = "Select place.name, count(*) as number, place.category, place.x, place.y from movement move, (select id,min(timestamp) as timestamp from movement where id in 
-        (select distinct(m.id) from movement m where x =".$xposition." and y =".$yposition." and day = '".$inputDay."' 
-        and HOUR(m.timestamp) = ".$whatTime.") and day = '".$inputDay."' and HOUR(timestamp) = ".($whatTime+1)." group by id) as temp, places place where 
-        temp.timestamp = move.timestamp and temp.id = move.id and place.x = move.x and move.y = place.y
-        group by place.name order by number DESC limit 5";
+        $myquery = "Select move.name, count(*) as number, move.category, move.x, move.y from movement_combined move, 
+        (select id,min(timestamp) as timestamp from movement_combined where id in (select distinct(id) from movement_combined 
+        where name = '".$whichPlace."' and HOUR(timestamp) = ".$whatTime." and day = '".$inputDay."') and day = '".$inputDay."' and 
+        HOUR(timestamp) = ".($whatTime+1)." group by id) as temp where temp.timestamp = move.timestamp and temp.id = move.id 
+        group by move.name order by number DESC limit 5";  
     } else {
-        $myquery = "Select place.name, count(*) as number, place.category, place.x, place.y from movement move, (select id,max(timestamp) as timestamp from movement where id in 
-        (select distinct(m.id) from movement m where x =".$xposition." and y =".$yposition." and day = '".$inputDay."' 
-        and HOUR(m.timestamp) = ".$whatTime.") and day = '".$inputDay."' and HOUR(timestamp) = ".($whatTime-1)." group by id) as temp, places place where 
-        temp.timestamp = move.timestamp and temp.id = move.id and place.x = move.x and move.y = place.y
-        group by place.name order by number DESC limit 5";
+        $myquery = "Select move.name, count(*) as number, move.category, move.x, move.y from movement_combined move, 
+        (select id,max(timestamp) as timestamp from movement_combined where id in (select distinct(id) from movement_combined 
+        where name = '".$whichPlace."' and HOUR(timestamp) = ".$whatTime." and day = '".$inputDay."') and day = '".$inputDay."' and 
+        HOUR(timestamp) = ".($whatTime-1)." group by id) as temp where temp.timestamp = move.timestamp and temp.id = move.id 
+        group by move.name order by number DESC limit 5";
     }
 
     $query = pdo_query($myquery);
@@ -43,6 +43,7 @@ include_once("pdo_mysql.php");
         echo pdo_error();
         die;
     }
+
     $data[] = [$selectedCategory,0,0];
     
     for ($x = 0; $x < pdo_num_rows($query); $x++) {
