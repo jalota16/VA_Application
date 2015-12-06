@@ -23,8 +23,8 @@
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-9">
       <ul class="nav navbar-nav">
-        <li class="active"><a href="">Home</a></li>
-        <li><a href="horizon.html">User Guide</a></li>
+        <li class="active"><a href="">Demo</a></li>
+        <li><a href="#">User Guide</a></li>
       </ul>
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
@@ -41,7 +41,7 @@
             <div id="chart1"></div> 
           </div>
           <div class="modal-footer">
-            <button id="specialButton" type="button" class="btn btn-info"></button>
+            <button id="specialButton" type="button" class="btn btn-info disabled"></button>
           </div>
         </div>
       </div>
@@ -49,15 +49,14 @@
   </div>
   <div class="container">
     <div class="modal fade" id="myModal1" role="dialog">
-      <div class="modal-dialog modal-lg">
+      <div class="modal-dialog modal-lg" style="width: 68%;height: 120%;">
         <!-- Modal content-->
-        <div class="modal-content">
+        <div id="#myModal1-content" class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal">&times;</button>
-            <h4 class="modal-title">Hourly Movement of Visitors</h4>
+            <h2 class="modal-title" id="content"></h2>
           </div>
-          <div class="modal-body">
-            <p>Movement of Visitors at </p>
+          <div class="modal-body" id="#myModal1-body">
             <div id="chart2"></div>
           </div>
         </div>

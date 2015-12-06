@@ -101,8 +101,8 @@ function heatmapChart(day,sortOrder) {
     .on("mouseout", function(){
        d3.select(this).classed("text-highlight",false);
     })
-    .on("click", function(){
-      chordDiagram();
+    .on("click", function(d){
+      chordDiagram(day,timingArray[times.indexOf(d)],d);
     });
 
   var url = "controllers/data.php?day=" + day;
@@ -188,6 +188,9 @@ function heatmapChart(day,sortOrder) {
 var lineBarChart = function(position,day,name,time) {
   //$("#pleaseWaitDialog").modal('show');
   var nextPosition = "", buttonText = "", chosenCategory = "";
+  if(time == 8) {
+    position = "after";
+  }
   if(position == "before"){
     nextPosition = "after";
     buttonText = "View Places Visited after Current Location";
@@ -328,87 +331,119 @@ var lineBarChart = function(position,day,name,time) {
     .style("fill", "orange");
 
     $("#title").html("Current Location: " + name + "<i class=\"title-text\">" + chosenCategory + "</i>");
-  });
   //$("#pleaseWaitDialog").modal('hide');
-  $("#myModal").modal({backdrop: "static"});
-  $("#specialButton").text(buttonText).click(function(){
-    lineBarChart(nextPosition,day,name,time);
-    event.stopPropagation();
+    $("#myModal").modal({backdrop: "static"});
+    if(time != 8 && time != 23) {
+      $("#specialButton").text(buttonText).attr("class","btn btn-info active").click(function(){
+        lineBarChart(nextPosition,day,name,time);
+        event.stopPropagation();
+      });
+    } else {
+      $("#specialButton").text(buttonText).attr("class","btn btn-info disabled").click(function(){
+        event.stopPropagation();
+      });
+    }
   });
 }
 
-function chordDiagram() {
+function chordDiagram(day,time,dayValue) {
   $('#chart2').text("");
-  var matrix = [
-    [11975,  5871, 8916, 2868],
-    [ 1951, 10048, 2060, 6171],
-    [ 8010, 16145, 8090, 8045],
-    [ 1013,   990,  940, 6907]
-  ];
+  var matrix = [];
+  var url = "controllers/hourlymovement.php?time=" + time + "&day=" + day;
+  d3.json(url, function(result) {
+    matrix = result;
+    for (i = 0; i < 35; i++) { 
+      if(matrix[i] == undefined){
+        matrix[i] = [];
+      }
+      for (j = 0; j < 35; j++) { 
+        if(matrix[i][j] == undefined){
+          matrix[i][j] = 0;
+        }
+      }
+    } 
+    var chord = d3.layout.chord()
+    .padding(.05)
+    .sortSubgroups(d3.descending)
+    .matrix(matrix);
+    var width = 960,
+        height = 700,
+        innerRadius = Math.min(width, height) * .41,
+        outerRadius = innerRadius * 1.1;
 
-  var chord = d3.layout.chord()
-      .padding(.05)
-      .sortSubgroups(d3.descending)
-      .matrix(matrix);
+    var fill = d3.scale.ordinal()
+        .domain(d3.range(35))
+        .range(["#eda7c1","#4d99d2","#900080","#ff0000",
+          "#666666","#000000","#ababab","#d6d6d6","#eeeeee","#0000cd","#ff00ff","#00ff00","#00bfff",
+          "#7fff00","#00ffff","#89b524","#fbe2e5","#ffd9de","#eda7c1","#abd6a8","#bbdaf6","#857868","#ef9f26",
+          "#411c01","#6a6a68","#56167d","#f7c003","#509d2b","#ac0123","#0b216d","#0091a0","#dd3f4e","#dd6ba7",
+          "#97d0a7","#5c5b9d"]);
 
-  var width = 960,
-      height = 450,
-      innerRadius = Math.min(width, height) * .41,
-      outerRadius = innerRadius * 1.1;
+    var svg = d3.select("#chart2").append("svg")
+        .attr("width", width)
+        .attr("height", height)
+      .append("g")
+        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
-  var fill = d3.scale.ordinal()
-      .domain(d3.range(4))
-      .range(["#000000", "#FFDD89", "#957244", "#F26223"]);
+    svg.append("g").selectAll("path")
+        .data(chord.groups)
+        .enter().append("path")
+        .style("fill", function(d) { return fill(d.index); })
+        .style("stroke", function(d) { return fill(d.index); })
+        .attr("d", d3.svg.arc().innerRadius(innerRadius).outerRadius(outerRadius))
+        .on("mouseover", fade(.1,svg))
+        .on("mouseout", fade(1,svg));
 
-  var svg = d3.select("#chart2").append("svg")
-      .attr("width", width)
-      .attr("height", height)
-    .append("g")
-      .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+    var ticks = svg.append("g").selectAll("g")
+        .data(chord.groups)
+      .enter().append("g").selectAll("g")
+        .data(groupTicks)
+      .enter().append("g")
+        .attr("transform", function(d) {
+          return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")"
+              + "translate(" + outerRadius + ",0)";
+        });
 
-  svg.append("g").selectAll("path")
-      .data(chord.groups)
+    ticks.append("line")
+        .attr("x1", 1)
+        .attr("y1", 0)
+        .attr("x2", 5)
+        .attr("y2", 0)
+        .style("stroke", "#000");
+
+    ticks.append("text")
+        .attr("x", 8)
+        .attr("dy", ".35em")
+        .attr("transform", function(d) { return d.angle > Math.PI ? "rotate(180)translate(-16)" : null; })
+        .style("text-anchor", function(d) { return d.angle > Math.PI ? "end" : null; })
+        .text(function(d) { return d.label; });
+
+    svg.append("g")
+        .attr("class", "chord")
+      .selectAll("path")
+        .data(chord.chords)
       .enter().append("path")
-      .style("fill", function(d) { return fill(d.index); })
-      .style("stroke", function(d) { return fill(d.index); })
-      .attr("d", d3.svg.arc().innerRadius(innerRadius).outerRadius(outerRadius))
-      .on("mouseover", fade(.1,svg))
-      .on("mouseout", fade(1,svg));
+        .attr("d", d3.svg.chord().radius(innerRadius))
+        .style("fill", function(d) { return fill(d.target.index); })
+        .style("opacity", 1);
 
-  var ticks = svg.append("g").selectAll("g")
-      .data(chord.groups)
-    .enter().append("g").selectAll("g")
-      .data(groupTicks)
-    .enter().append("g")
-      .attr("transform", function(d) {
-        return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")"
-            + "translate(" + outerRadius + ",0)";
-      });
+    svg.selectAll("g.group")
+    .data(chord.groups)
+    .enter().append("svg:g")
+    .attr("class", "group").append("svg:text")
+    .each(function(d) { d.angle = (d.startAngle + d.endAngle) / 2; })
+    .attr("dy", ".35em")
+    .attr("text-anchor", function(d) { return d.angle > Math.PI ? "end" : null; })
+    .attr("transform", function(d) {
+      return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")"
+          + "translate(" + (innerRadius + 26) + ")"
+          + (d.angle > Math.PI ? "rotate(180)" : "");
+    })
+    .text(function(d) { return ""; });
 
-  ticks.append("line")
-      .attr("x1", 1)
-      .attr("y1", 0)
-      .attr("x2", 5)
-      .attr("y2", 0)
-      .style("stroke", "#000");
-
-  ticks.append("text")
-      .attr("x", 8)
-      .attr("dy", ".35em")
-      .attr("transform", function(d) { return d.angle > Math.PI ? "rotate(180)translate(-16)" : null; })
-      .style("text-anchor", function(d) { return d.angle > Math.PI ? "end" : null; })
-      .text(function(d) { return d.label; });
-
-  svg.append("g")
-      .attr("class", "chord")
-    .selectAll("path")
-      .data(chord.chords)
-    .enter().append("path")
-      .attr("d", d3.svg.chord().radius(innerRadius))
-      .style("fill", function(d) { return fill(d.target.index); })
-      .style("opacity", 1);
-
-  $("#myModal1").modal({backdrop: "static"});
+    $("#myModal1").modal({backdrop: "static"});
+    $("#content").text("Movement of Visitors at " + dayValue);
+  });
 }
 
 // Returns an array of tick angles and labels, given a group.

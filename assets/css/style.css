@@ -126,6 +126,16 @@ rect.cell-hover {
   border-radius: 0;
 }
 
+#myModal1-content {
+  height: 100%;
+  border-radius: 0;
+}
+
+#myModal1-body{
+  height: 76%;
+  border-radius: 0;
+}
+
 .chord path {
   fill-opacity: .67;
   stroke: #000;
