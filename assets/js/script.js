@@ -347,6 +347,12 @@ var lineBarChart = function(position,day,name,time) {
 }
 
 function chordDiagram(day,time,dayValue) {
+  var days = ["Atmosfear","Auvilotops Express","Beelzebufo","Blue Iguanodon","Creighton Pavilion","Cyndisaurus Asteroid",
+  "Daily Slab Maps and Info","Dykesadactyl Thrill","Eberlasaurus Roundup","Enchanted Toadstools","Firefall","Flight of the Swingodon",
+  "Flying TyrAndrienkos","Galactousaurus Rage","Grinosaurus Stage","Ichyoroberts Rapids","Jeradctyl Jump","Jurassic Road",
+  "Kauf's Lost Canyon Escape","Keimosaurus Big Spin","Kristandon Kaper","Maiasaur Madness","Paleocarrie Carousel","Raptor Race",
+  "Rhynasaurus Rampage","SabreTooth Theatre","Sauroma Bumpers","Scholz Express","Squidosaur","Stegocycles","Stone Cups","TerroSaur",
+  "Wendisaurus Chase","Wild Jungle Cruise","Wrightiraptor Mountain"];
   $('#chart2').text("");
   var matrix = [];
   var url = "controllers/hourlymovement.php?time=" + time + "&day=" + day;
@@ -381,9 +387,9 @@ function chordDiagram(day,time,dayValue) {
 
     var svg = d3.select("#chart2").append("svg")
         .attr("width", width)
-        .attr("height", height)
+        .attr("height", height + 300)
       .append("g")
-        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+        .attr("transform", "translate(" + width / 2 + "," + height/1.45+ ")");
 
     svg.append("g").selectAll("path")
         .data(chord.groups)
@@ -436,10 +442,10 @@ function chordDiagram(day,time,dayValue) {
     .attr("text-anchor", function(d) { return d.angle > Math.PI ? "end" : null; })
     .attr("transform", function(d) {
       return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")"
-          + "translate(" + (innerRadius + 26) + ")"
+          + "translate(" + (innerRadius + 48) + ")"
           + (d.angle > Math.PI ? "rotate(180)" : "");
     })
-    .text(function(d) { return ""; });
+    .text(function(d) { return days[d.index]; });
 
     $("#myModal1").modal({backdrop: "static"});
     $("#content").text("Movement of Visitors at " + dayValue);
@@ -449,10 +455,10 @@ function chordDiagram(day,time,dayValue) {
 // Returns an array of tick angles and labels, given a group.
 function groupTicks(d) {
   var k = (d.endAngle - d.startAngle) / d.value;
-  return d3.range(0, d.value, 1000).map(function(v, i) {
+  return d3.range(0, d.value, 5).map(function(v, i) {
     return {
       angle: v * k + d.startAngle,
-      label: i % 5 ? null : v / 1000 + "k"
+      label: i % 5 ? null : v / 5 
     };
   });
 }
@@ -466,5 +472,3 @@ function fade(opacity,svg) {
         .style("opacity", opacity);
   };
 }
-
-
