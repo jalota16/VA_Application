@@ -1,7 +1,7 @@
 <?php
 include_once("pdo_mysql.php");
-    $username = "adminME3QZIe"; 
-    $password = "Sv3tExQhktkN";   
+    $username = "root"; 
+    $password = "";   
     $host = "localhost";
     $database="vaproject";
 	
@@ -12,8 +12,8 @@ include_once("pdo_mysql.php");
     $whichDay = htmlspecialchars($_GET["day"]);
     $whichDay = array_search($whichDay,array_values($datasetsLabels));
     $inputDay = $datasets[$whichDay];
-    $myquery = "select name,count(*) as value, HOUR(m.timestamp) as timing from movement m, places p 
-    where m.x = p.x and p.y = m.y and day = '".$inputDay."' group by name, HOUR(m.timestamp);";
+    $myquery = "select name,count(*) as value, HOUR(timestamp) as timing from movement_combined where 
+    day = '".$inputDay."' group by name, HOUR(timestamp);";
 
     $query = pdo_query($myquery);
     

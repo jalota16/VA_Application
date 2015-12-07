@@ -8,19 +8,11 @@ rect.bordered {
   stroke-width: 0.3;
 }
 
-text.mono {
+text {
   font-size: 9pt;
   fill: #999391;
 }
-
-text.axis-workweek {
-  fill: #000;
-}
-
-text.axis-worktime {
-  fill: #000;
-}
-
+  
 rect.cell-hover {
   fill-opacity: 0.8;
   cursor: pointer;
@@ -50,6 +42,15 @@ rect.cell-hover {
 
 #tooltip.hidden {
   display: none;
+}
+
+.legend1-hidden {
+  opacity: 0.3;
+  cursor: pointer;
+}
+
+.legend1 {
+  cursor: pointer;
 }
 
 #tooltip p {

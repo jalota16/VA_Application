@@ -43,8 +43,8 @@ datasetpicker1.enter()
 
 function heatmapChart(day,sortOrder) {
   $('#chart').text("");
-  var margin = { top: 25, right: 0, bottom: 100, left: 150 },
-  height = 750 - margin.left - margin.right,
+  var margin = { top: 25, right: 0, bottom: 100, left: 180 },
+  height = 750 - margin.left - margin.right + 30,
   width = 1060 - margin.top - margin.bottom - 5,
   gridSize = Math.floor(width / 55),
   legendElementWidth = gridSize*3,
@@ -52,6 +52,7 @@ function heatmapChart(day,sortOrder) {
   //colors = ['#fff7ec','#fee8c8','#fdd49e','#fdbb84','#fc8d59','#ef6548','#d7301f','#990000'], // alternatively colorbrewer.YlGnBu[9]
   //colors = ['#f7fbff', '#deebf7', '#c6dbef',"#9ecae1","#6baed6","#4292c6","#2171b5","#084594"],
   colors = ["#fff5eb","#fee6ce","#fdd0a2","#fdae6b","#fd8d3c","#f16913","#d94801","#8c2d04"],
+  legendColors = ["#FF1700", "#9404E8", "#0874FF", "#027F3E", "#EB00AD"],
   days = ["Atmosfear","Auvilotops Express","Beelzebufo","Blue Iguanodon","Creighton Pavilion","Cyndisaurus Asteroid",
   "Daily Slab Maps and Info","Dykesadactyl Thrill","Eberlasaurus Roundup","Enchanted Toadstools","Firefall","Flight of the Swingodon",
   "Flying TyrAndrienkos","Galactousaurus Rage","Grinosaurus Stage","Ichyoroberts Rapids","Jeradctyl Jump","Jurassic Road",
@@ -59,7 +60,15 @@ function heatmapChart(day,sortOrder) {
   "Rhynasaurus Rampage","SabreTooth Theatre","Sauroma Bumpers","Scholz Express","Squidosaur","Stegocycles","Stone Cups","TerroSaur",
   "Wendisaurus Chase","Wild Jungle Cruise","Wrightiraptor Mountain"],
   times = ["8am", "9am", "10am", "11am", "12am", "1pm", "2pm", "3pm", "4pm", "5pm", "6pm", "7pm", "8pm", "9pm", "10pm", "11pm"];
-  timingArray = [8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23];
+  timingArray = [8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23],
+  categories = ["InformationAssistance","KiddieRides","RidesForEveryone","ShowsEntertainment","ThrillRides"],
+  categories1 = ["Information & Assistance","Kiddie Rides","Rides For Everyone","Shows & Entertainment","Thrill Rides"],
+  category = ["ThrillRides","ThrillRides","KiddieRides","KiddieRides","ShowsEntertainment","KiddieRides","InformationAssistance"
+              ,"RidesForEveryone","RidesForEveryone","KiddieRides","ThrillRides","ThrillRides","KiddieRides","ThrillRides","ShowsEntertainment"
+              ,"RidesForEveryone","KiddieRides","RidesForEveryone","RidesForEveryone","ThrillRides","RidesForEveryone"
+              ,"RidesForEveryone","RidesForEveryone","RidesForEveryone","RidesForEveryone","ShowsEntertainment",
+              "KiddieRides","RidesForEveryone","RidesForEveryone","KiddieRides","KiddieRides","ThrillRides",
+              "ThrillRides","KiddieRides","ThrillRides"];
 
   if(sortOrder == "Ride Category"){
     days = ["Daily Slab Maps and Info","Stone Cups","Wild Jungle Cruise","Blue Iguanodon","Stegocycles","Enchanted Toadstools",
@@ -68,10 +77,16 @@ function heatmapChart(day,sortOrder) {
     "Raptor Race","Ichyoroberts Rapids","Dykesadactyl Thrill","Squidosaur","SabreTooth Theatre","Grinosaurus Stage","Creighton Pavilion",
     "Wrightiraptor Mountain","Atmosfear","Firefall","Keimosaurus Big Spin","Wendisaurus Chase","TerroSaur","Auvilotops Express",
     "Galactousaurus Rage","Flight of the Swingodon"];
+
+    category = ["InformationAssistance","KiddieRides","KiddieRides","KiddieRides","KiddieRides","KiddieRides","KiddieRides"
+    ,"KiddieRides","KiddieRides","KiddieRides","KiddieRides","RidesForEveryone","RidesForEveryone","RidesForEveryone"
+    ,"RidesForEveryone","RidesForEveryone","RidesForEveryone","RidesForEveryone","RidesForEveryone","RidesForEveryone"
+    ,"RidesForEveryone","RidesForEveryone","RidesForEveryone","ShowsEntertainment","ShowsEntertainment","ShowsEntertainment"
+    ,"ThrillRides","ThrillRides","ThrillRides","ThrillRides","ThrillRides","ThrillRides","ThrillRides","ThrillRides","ThrillRides"];
   }
 
   var svg = d3.select("#chart").append("svg")
-    .attr("width", width + margin.left + margin.right + 150)
+    .attr("width", width + margin.left + margin.right + 230)
     .attr("height", height + margin.top + margin.bottom - 140)
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -84,7 +99,8 @@ function heatmapChart(day,sortOrder) {
     .attr("y", function (d, i) { return i * gridSize; })
     .style("text-anchor", "start")
     .attr("transform", "translate(" + -gridSize * 9 + "," + gridSize / 1.5 + ")")
-    .attr("class", function (d, i) { return ((i % 2 == 1) ? "dayLabel mono axis axis-workweek" : "dayLabel mono axis"); });
+    .attr("class", function (d, i) { return category[i] })
+    .style("fill", function (d, i) { return legendColors[categories.indexOf(category[i])]});
 
   var timeLabels = svg.selectAll(".timeLabel")
     .data(times)
@@ -94,7 +110,7 @@ function heatmapChart(day,sortOrder) {
     .attr("y", 0)
     .style("text-anchor", "middle")
     .attr("transform", "translate(" + gridSize/0.7  + ", -6)")
-    .attr("class", "label-text")
+    .attr("class", "text")
     .on("mouseover", function(d){
       d3.select(this).classed("text-highlight",true);
     })
@@ -111,6 +127,10 @@ function heatmapChart(day,sortOrder) {
       .domain([0, buckets - 1, d3.max(data, function (d) {return +d.value; })])
       .range(colors);
 
+    var legendScale = d3.scale.ordinal()
+      .domain(categories)
+      .range([0,1,2,3,4]);
+
     var cards = svg.selectAll(".hour")
       .data(data, function(d) {
       d.name = days.indexOf(d.name);
@@ -123,15 +143,15 @@ function heatmapChart(day,sortOrder) {
     cards.enter().append("rect")
       .attr("x", function(d) { return (d.timing) * gridSize * 3; })
       .attr("y", function(d) { return (d.name) * gridSize; })
-      .attr("class", "hour bordered")
+      .attr("class", function(d){ return "hour bordered " + category[d.name];})
       .attr("width", gridSize * 3)
       .attr("height", gridSize)
       .style("fill", colors[0])
       .on("mouseover", function(d){
        //highlight text
        d3.select(this).classed("cell-hover",true);
-       d3.selectAll(".dayLabel").classed("text-highlight",function(r,ri){ return ri==(d.name);});
-       d3.selectAll(".timeLabel").classed("text-highlight",function(c,ci){ return ci==(d.timing);});
+       //d3.selectAll(".dayLabel").classed("text-highlight",function(r,ri){ return ri==(d.name);});
+       //d3.selectAll(".timeLabel").classed("text-highlight",function(c,ci){ return ci==(d.timing);});
 
          //Update the tooltip position and value
        d3.select("#tooltip")
@@ -144,8 +164,8 @@ function heatmapChart(day,sortOrder) {
       })
       .on("mouseout", function(){
              d3.select(this).classed("cell-hover",false);
-             d3.selectAll(".dayLabel").classed("text-highlight",false);
-             d3.selectAll(".timeLabel").classed("text-highlight",false);
+             //d3.selectAll(".dayLabel").classed("text-highlight",false);
+             //d3.selectAll(".timeLabel").classed("text-highlight",false);
              d3.select("#tooltip").classed("hidden", true);
       })
       .on("click", function(d){
@@ -166,7 +186,7 @@ function heatmapChart(day,sortOrder) {
         .attr("class", "legend");
 
     legend.append("rect")
-      .attr("x", function(d, i) { return legendElementWidth/1.25 * i + 775; })
+      .attr("x", function(d, i) { return legendElementWidth/1.25 * i + 805; })
       .attr("y", height - gridSize*4.5)
       .attr("width", legendElementWidth/1.25)
       .attr("height", gridSize / 1.5 )
@@ -178,10 +198,43 @@ function heatmapChart(day,sortOrder) {
       .attr("class", "mono")
       .style("fill", "#000")
       .text(function(d) { return "≥ " + Math.round(d); })
-      .attr("x", function(d, i) { return legendElementWidth/1.25 * i + 775; })
+      .attr("x", function(d, i) { return legendElementWidth/1.25 * i + 806; })
       .attr("y", height - gridSize * 3);
 
     legend.exit().remove();
+
+    var legend1 = svg.selectAll(".legend")
+        .data(categories1);
+
+    legend1.enter().append("g")
+        .attr("class", "legend");
+
+    legend1.append("rect")
+      .attr("x", function(d, i) { return 890; })
+      .attr("y", function(d, i) { return height - gridSize*i - 100})
+      .attr("width", legendElementWidth/1.25)
+      .attr("height", gridSize / 1.5 )
+      .attr("class","legend1")
+      .style("fill", function(d, i) { return legendColors[i]; })
+      .style("stroke", "#5c5c3d")
+      .style("stroke-width", "0.5")
+      .on("click",function(d,i){
+          var setValue = true;
+          var setClass = "legend1-hidden";
+          if(d3.select(this).attr("class").indexOf("hidden") != -1){
+            setValue = false;
+            setClass = "legend1";
+          }
+          d3.selectAll("."+ categories[i]).classed("hidden",setValue);
+          d3.select(this).attr("class",setClass);
+      });
+
+    legend1.append("text")
+      .attr("class", "mono")
+      .style("fill", "#000")
+      .text(function(d) { return d})
+      .attr("x", function(d, i) { return 935; })
+      .attr("y", function(d, i) { return height - gridSize*i - 91});
   }); 
 }
 
@@ -259,7 +312,7 @@ var lineBarChart = function(position,day,name,time) {
       .attr("dy", "-2em")
       //.attr("dx", "1em")
       .style("text-anchor", "middle")
-      .text("Estimated Proximity");
+      .text("Estimated Proximity / units");
 
     bars = svg.selectAll(".bar").data(data).enter();
 
@@ -372,8 +425,8 @@ function chordDiagram(day,time,dayValue) {
     .padding(.05)
     .sortSubgroups(d3.descending)
     .matrix(matrix);
-    var width = 960,
-        height = 700,
+    var width = 900,
+        height = 600,
         innerRadius = Math.min(width, height) * .41,
         outerRadius = innerRadius * 1.1;
 
@@ -387,9 +440,9 @@ function chordDiagram(day,time,dayValue) {
 
     var svg = d3.select("#chart2").append("svg")
         .attr("width", width)
-        .attr("height", height + 300)
+        .attr("height", height + 280)
       .append("g")
-        .attr("transform", "translate(" + width / 2 + "," + height/1.45+ ")");
+        .attr("transform", "translate(" + width / 2 + "," + height/1.38+ ")");
 
     svg.append("g").selectAll("path")
         .data(chord.groups)

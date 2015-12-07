@@ -1,7 +1,7 @@
 <?php
 include_once("pdo_mysql.php");
-    $username = "adminME3QZIe"; 
-    $password = "Sv3tExQhktkN";    
+    $username = "root"; 
+    $password = "";    
     $host = "localhost";
     $database="vaproject";
 	
